@@ -1,5 +1,6 @@
 import { fetchImages } from './js/pixabay-api.js';
 import { renderGallery, clearGallery } from './js/render-functions.js';
+import iziToast from 'izitoast';
 
 const form = document.getElementById('search-form');
 const input = document.getElementById('search-input');
@@ -34,25 +35,38 @@ form.addEventListener('submit', async event => {
     if (totalHits > perPage) {
       loadMoreBtn.style.display = 'block';
     }
+  } else {
+    iziToast.error({
+      title: 'Error',
+      message: 'No results found for your search.',
+      position: 'topRight',
+    });
   }
 });
 
 loadMoreBtn.addEventListener('click', async () => {
-  page += 1;
   loader.style.display = 'block';
+  page += 1;
 
   const { hits, totalHits } = await fetchImages(searchQuery, page, perPage);
   loader.style.display = 'none';
-  renderGallery(hits);
 
-  const galleryItem = document.querySelector('.gallery-item');
-  if (galleryItem) {
-    const cardHeight = galleryItem.getBoundingClientRect().height;
-    window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+  if (hits.length > 0) {
+    renderGallery(hits);
+
+    const galleryItem = document.querySelector('.gallery-item');
+    if (galleryItem) {
+      const cardHeight = galleryItem.getBoundingClientRect().height;
+      window.scrollBy({ top: cardHeight * 2, behavior: 'smooth' });
+    }
   }
 
   if (page * perPage >= totalHits) {
     loadMoreBtn.style.display = 'none';
-    alert("We're sorry, but you've reached the end of search results.");
+    iziToast.info({
+      title: 'End of results',
+      message: "We're sorry, but you've reached the end of search results.",
+      position: 'topRight',
+    });
   }
 });
