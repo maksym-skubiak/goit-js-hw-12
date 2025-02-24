@@ -15,6 +15,7 @@ export async function fetchImages(query, page = 1, perPage = 40) {
 
     return await response.json();
   } catch (error) {
+    loader.style.display = 'none';
     iziToast.error({
       title: 'Error',
       message: 'Something went wrong while fetching images.',
